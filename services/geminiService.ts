@@ -5,7 +5,7 @@
 */
 
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { StrategicHint, AiResponse, ThemeType } from "../types";
+import { StrategicHint, AiResponse, ThemeType, ImageSize } from "../types";
 
 // Helper for base64 decoding to Uint8Array
 function decodeBase64(base64: string) {
@@ -39,11 +39,47 @@ async function decodeAudioData(
 }
 
 /**
+ * Generates an elite visualization based on shoutout text.
+ */
+export const generateSidImage = async (prompt: string, size: ImageSize): Promise<string | null> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-image-preview',
+      contents: {
+        parts: [
+          {
+            text: `Create a futuristic, retro-arcade style digital art piece celebrating BI leadership and team mentorship. 
+            The visual should represent 'Sid The Brain' and this specific message: "${prompt}". 
+            Style: High-tech cyberpunk with glowing data nodes, neon circuits, and a heroic data-driven atmosphere.`,
+          },
+        ],
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "16:9",
+          imageSize: size
+        },
+      },
+    });
+
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        return `data:image/png;base64,${part.inlineData.data}`;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Image generation failed:", error);
+    return null;
+  }
+};
+
+/**
  * Generates and plays "alien voice" text-to-speech.
  * Includes a robust Web Speech API fallback for zero-latency/offline support.
  */
 export const speakAlien = async (text: string, audioContext: AudioContext): Promise<void> => {
-  // First, try the elite Gemini TTS for maximum "alien" quality
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
@@ -71,20 +107,18 @@ export const speakAlien = async (text: string, audioContext: AudioContext): Prom
       source.buffer = audioBuffer;
       source.connect(audioContext.destination);
       source.start();
-      return; // Success!
+      return;
     }
   } catch (error) {
     console.debug("Gemini TTS bypass/fallback active.");
   }
 
-  // FAILSAFE: Web Speech API "Alien" fallback
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel(); // Stop any current speech
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.pitch = 1.8; // High pitched "alien"
-    utterance.rate = 0.9;  // Slightly slow and robotic
+    utterance.pitch = 1.8;
+    utterance.rate = 0.9;
     const voices = window.speechSynthesis.getVoices();
-    // Try to find a robotic or high-pitched voice
     const robotVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Robot'));
     if (robotVoice) utterance.voice = robotVoice;
     window.speechSynthesis.speak(utterance);
@@ -92,31 +126,11 @@ export const speakAlien = async (text: string, audioContext: AudioContext): Prom
 };
 
 const LOCAL_BRAIN_INSIGHTS = [
-  {
-    message: "SID-SYNC ESTABLISHED",
-    rationale: "Sid's mentorship has successfully aligned the team's technical architecture with long-term strategic goals. The data flow is harmonious and pure Sid-Sight.",
-    winTier: "Elite Navigator"
-  },
-  {
-    message: "COACHING FLOW ACTIVE",
-    rationale: "Through dedicated knowledge sharing, Sid has expanded the team's collective capacity to solve complex challenges. Elite sync achieved!",
-    winTier: "Culture Catalyst"
-  },
-  {
-    message: "ELITE DATA ARCHITECTURE",
-    rationale: "The legacy of Sid's work is a robust and scalable data environment that continues to power team innovations. A true masterpiece.",
-    winTier: "System Architect"
-  },
-  {
-    message: "SID-TASTIC SUCCESS",
-    rationale: "The BI team has reached a state of pure efficiency. Sid's guidance is visible in every dashboard and data point. Legend status!",
-    winTier: "Data Deity"
-  },
-  {
-    message: "TEAM VIBE OVERLOAD",
-    rationale: "Sid doesn't just build data, he builds people. The team morale is at an all-time high thanks to Sid's culture of excellence.",
-    winTier: "Vibe Master"
-  }
+  { message: "SID-SYNC ESTABLISHED", rationale: "Sid's mentorship has successfully aligned the team's technical architecture with long-term strategic goals.", winTier: "Elite Navigator" },
+  { message: "COACHING FLOW ACTIVE", rationale: "Through dedicated knowledge sharing, Sid has expanded the team's collective capacity to solve complex challenges.", winTier: "Culture Catalyst" },
+  { message: "ELITE DATA ARCHITECTURE", rationale: "The legacy of Sid's work is a robust and scalable data environment that continues to power team innovations.", winTier: "System Architect" },
+  { message: "SID-TASTIC SUCCESS", rationale: "The BI team has reached a state of pure efficiency. Sid's guidance is visible in every dashboard.", winTier: "Data Deity" },
+  { message: "TEAM VIBE OVERLOAD", rationale: "Sid doesn't just build data, he builds people. The team morale is at an all-time high.", winTier: "Vibe Master" }
 ];
 
 const NEW_BRAIN_SYMBOLS = [
@@ -132,7 +146,6 @@ export const analyzeSpin = async (
   const startTime = Date.now();
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  // Use a race condition pattern to prevent "falling" or long hangs
   const apiCall = ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `You are the "Sid-Sight" AI co-pilot. Celebrates Sid Bartake. landed: ${symbolsLanded.join(', ')}. Mode: ${selectedStrategy}. feedback: ${recentFeedback.join(' | ')}. Generate high-energy JSON output.`,
@@ -161,7 +174,7 @@ export const analyzeSpin = async (
     }
   });
 
-  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2500)); // 2.5s cap
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2500));
 
   try {
     const result = await Promise.race([apiCall, timeout]);
@@ -173,7 +186,6 @@ export const analyzeSpin = async (
       debug: { latency: Date.now() - startTime, timestamp: new Date().toLocaleTimeString() }
     };
   } catch (error) {
-    // Zero-failure fallback mode
     const randomIndex = Math.floor(Math.random() * LOCAL_BRAIN_INSIGHTS.length);
     const insight = LOCAL_BRAIN_INSIGHTS[randomIndex];
     return {

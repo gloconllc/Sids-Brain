@@ -5,6 +5,7 @@
 */
 
 export type ThemeType = 'CYBERPUNK' | 'VEGAS' | 'MINIMALIST';
+export type ImageSize = '1K' | '2K' | '4K';
 
 export interface SymbolType {
   id: string;
@@ -39,4 +40,5 @@ export interface FeedbackMessage {
   msg: string;
   longText?: string;
   timestamp: string;
+  imageUrl?: string;
 }
