@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>Sid the Brain | Team Celebration Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        background-color: #050510;
+        color: #e3e3e3;
+        overflow: hidden;
+        font-family: 'Roboto', sans-serif;
+        touch-action: none;
+        height: 100vh;
+        width: 100vw;
+      }
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+      .font-arcade {
+        font-family: 'Press Start 2P', cursive;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      @keyframes neon-flicker {
+        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+          opacity: 1;
+        }
+        20%, 22%, 24%, 55% {
+          opacity: 0.8;
+        }
+      }
+      .neon-text {
+        animation: neon-flicker 4s infinite;
+      }
+      @keyframes scan {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      .animate-scan {
+        animation: scan 4s infinite linear;
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.6s ease-out forwards;
+      }
+      @keyframes scale-up {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      .animate-scale-up {
+        animation: scale-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 12s linear infinite;
+      }
+      @keyframes slide-up {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .animate-slide-up {
+        animation: slide-up 0.5s ease-out forwards;
+      }
+      .crt::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+        z-index: 2;
+        background-size: 100% 4px, 4px 100%;
+        pointer-events: none;
+      }
+      .crt-glitch {
+        animation: glitch 10s infinite;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      @keyframes glitch {
+        0% { transform: translate(0); }
+        1% { transform: translate(-2px, 1px); }
+        2% { transform: translate(2px, -1px); }
+        3% { transform: translate(0); }
+        100% { transform: translate(0); }
+      }
+      .arcade-cabinet-frame {
+        box-shadow: 
+          inset 0 0 50px rgba(255, 255, 255, 0.03),
+          0 0 40px rgba(0, 0, 0, 1);
+      }
+      .cabinet-container {
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .shadow-glow {
+        box-shadow: 0 0 20px currentColor;
+      }
+      @media screen and (max-height: 500px) {
+        .cabinet-container {
+          height: auto;
+          min-height: 100vh;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.31.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.556.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
